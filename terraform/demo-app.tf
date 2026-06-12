@@ -53,15 +53,12 @@ resource "rabbitmq_queue" "queue" {
   settings {
     durable     = true
     auto_delete = false
-    # arguments = {
-    #   "x-queue-type" : "quorum",
-    # }
-    arguments_json = <<EOF
-{
-  "x-message-ttl": 3600,
-  "x-queue-type" : "quorum"
-}
-EOF
+    arguments_json = jsonencode({
+      "x-message-ttl" : 3600,
+      "x-queue-type" : "quorum"
+      "x-dead-letter-exchange" : "dlx",
+      "x-dead-letter-routing-key" : "${var.name}-dlx"
+    })
   }
 }
 
