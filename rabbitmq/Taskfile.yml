@@ -1,0 +1,25 @@
+version: '3'
+tasks:
+  default:
+    cmds:
+      - task --list-all
+
+  up:
+    cmds:
+      - docker compose up
+    dir: docker
+  
+  down:
+    cmds:
+      - docker compose down
+    dir: docker
+  
+  apply:
+    cmds:
+      - terraform apply
+    dir: terraform
+  
+  fmt:
+    cmds:
+      - terraform fmt
+    dir: terraform
