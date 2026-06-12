@@ -2,21 +2,27 @@
 version: '3.8'
 
 services:
-  # nginx:
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
-  #   image: nginx:latest
-  #   restart: on-failure
-  #   container_name: nginx
-  #   networks:
-  #     - rabbitmq_network
-  #   hostname: nginx
-  #   volumes:
-  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
-  #   ports:
-  #     - "5673:5672"
-  #     - "15673:15672"
+  nginx:
+    depends_on:
+      rabbitmq-1:
+        condition: service_healthy
+      rabbitmq-2:
+        condition: service_healthy
+      rabbitmq-3:
+        condition: service_healthy
+      quorum_maker:
+        condition: service_completed_successfully
+    image: nginx:latest
+    restart: unless-stopped
+    container_name: nginx
+    networks:
+      - rabbitmq_network
+    hostname: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "5672:5672"
+      - "15672:15672"
   rabbitmq-1:
     image: rabbitmq:3-management
     container_name: rabbitmq-1

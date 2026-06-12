@@ -9,7 +9,7 @@ terraform {
 
 # Configure the RabbitMQ provider
 provider "rabbitmq" {
-  endpoint = "http://localhost:15673"
+  endpoint = "http://localhost:15672"
   username = "admin"
   password = "secretpassword123"
 }
