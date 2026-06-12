@@ -6,13 +6,6 @@ resource "rabbitmq_vhost" "application" {
 resource "rabbitmq_user" "producer" {
   name     = "producer"
   password = "producer"
-  # tags     = ["administrator", "management"]
-}
-
-resource "rabbitmq_user" "consumer" {
-  name     = "consumer"
-  password = "consumer"
-  # tags     = ["administrator", "management"]
 }
 
 resource "rabbitmq_permissions" "producer" {
@@ -24,6 +17,11 @@ resource "rabbitmq_permissions" "producer" {
     write     = ".*"
     read      = ".*"
   }
+}
+
+resource "rabbitmq_user" "consumer" {
+  name     = "consumer"
+  password = "consumer"
 }
 
 resource "rabbitmq_permissions" "consumer" {

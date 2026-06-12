@@ -5,12 +5,12 @@ import time
 import os
 import dotenv
 
-from parameters import parameters as params
+from parameters import get_params
 
 
 def main():
 
-    connection = pika.BlockingConnection(params)
+    connection = pika.BlockingConnection(get_params(False))
     channel = connection.channel()
 
     # Ensure queue exists (idempotent operation)

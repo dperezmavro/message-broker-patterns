@@ -5,10 +5,14 @@ import time
 from dotenv import load_dotenv
 import os
 import random
-from parameters import parameters as params
+from parameters import get_params
 
 
-def publish_message(channel: pika.adapters.blocking_connection.BlockingChannel, id: int, message_data):
+def publish_message(
+    channel: pika.adapters.blocking_connection.BlockingChannel,
+    id: str,
+    message_data: any,
+):
     """
     Publish a message to the task queue.
     Messages are persisted to disk for durability.
@@ -20,7 +24,7 @@ def publish_message(channel: pika.adapters.blocking_connection.BlockingChannel, 
         properties=pika.BasicProperties(
             delivery_mode=2,  # Make message persistent
             content_type="application/json",
-            message_id=str(id),
+            message_id=id,
         ),
     )
     print(f"Sent: {message_data}")
@@ -29,9 +33,8 @@ def publish_message(channel: pika.adapters.blocking_connection.BlockingChannel, 
 def main():
     load_dotenv()
 
-    
     # Establish connection to RabbitMQ
-    connection = pika.BlockingConnection(params)
+    connection = pika.BlockingConnection(get_params(True))
     channel = connection.channel()
 
     # Declare a durable queue (survives broker restart)
@@ -46,15 +49,15 @@ def main():
         id = (random.randint(1, 100),)
         publish_message(
             channel,
-            id,
+            f"{id}",
             {
-                "task_id": id,
+                "task_id": f"{id}",
                 "action": "process_data",
                 "timestamp": time.time(),
             },
         )
-        print("[*] Sleeping...")
-        time.sleep(1)
+        # print("[*] Sleeping...")
+        time.sleep(0.5)
 
     # Clean up connection
     connection.close()
