@@ -13,18 +13,6 @@ def main():
     connection = pika.BlockingConnection(get_params(False))
     channel = connection.channel()
 
-    # Ensure queue exists (idempotent operation)
-    channel.queue_declare(
-        queue=os.getenv("RMQ_VHOST"),
-        durable=True,
-        arguments={
-            "x-queue-type": "quorum",
-            "x-message-ttl": 3600,
-            "x-dead-letter-exchange": "dlx",
-            "x-dead-letter-routing-key": f"{os.getenv('RMQ_VHOST')}-dlx",
-        },
-    )
-
     # Process only one message at a time
     # Prevents fast consumer from grabbing all messages
     channel.basic_qos(prefetch_count=1)

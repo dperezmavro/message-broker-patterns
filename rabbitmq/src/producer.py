@@ -37,19 +37,6 @@ def main():
     connection = pika.BlockingConnection(get_params(True))
     channel = connection.channel()
 
-    # Declare a durable queue (survives broker restart)
-    # durable=True persists the queue definition
-    channel.queue_declare(
-        queue=os.getenv("RMQ_VHOST"),
-        durable=True,
-        arguments={
-            "x-queue-type": "quorum",
-            "x-message-ttl": 3600,
-            "x-dead-letter-exchange": "dlx",
-            "x-dead-letter-routing-key": f"{os.getenv('RMQ_VHOST')}-dlx",
-        },
-    )
-
     # Send sample messages
     while True:
         id = (random.randint(1, 100),)

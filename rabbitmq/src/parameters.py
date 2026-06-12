@@ -24,7 +24,7 @@ def get_params(producer: bool = False):
         virtual_host=os.getenv("RMQ_VHOST"),
         credentials=credentials,
         # Heartbeat keeps connection alive
-        heartbeat=60,
+        heartbeat=10,
         # Retry connection on failure
         connection_attempts=3,
         retry_delay=5,
