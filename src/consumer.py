@@ -17,6 +17,12 @@ def main():
     channel.queue_declare(
         queue=os.getenv("RMQ_VHOST"),
         durable=True,
+        arguments={
+            "x-queue-type": "quorum",
+            "x-message-ttl": 3600,
+            "x-dead-letter-exchange": "dlx",
+            "x-dead-letter-routing-key": f"{os.getenv('RMQ_VHOST')}-dlx",
+        },
     )
 
     # Process only one message at a time
@@ -28,11 +34,12 @@ def main():
     channel.basic_consume(
         queue=os.getenv("RMQ_QUEUE"),
         on_message_callback=process_message,
-        auto_ack=False
+        auto_ack=False,
     )
 
     print("Waiting for messages. Press CTRL+C to exit.")
     channel.start_consuming()
+
 
 def process_message(ch, method, properties, body):
     """
@@ -54,10 +61,8 @@ def process_message(ch, method, properties, body):
     except Exception as e:
         print(f"Error processing message: {e}")
         # Reject and requeue the message for retry
-        ch.basic_nack(
-            delivery_tag=method.delivery_tag,
-            requeue=True
-        )
+        ch.basic_nack(delivery_tag=method.delivery_tag, requeue=True)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

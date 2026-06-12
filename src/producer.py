@@ -44,9 +44,9 @@ def main():
         durable=True,
         arguments={
             "x-queue-type": "quorum",
-            'x-message-ttl': 3600,
-            # "x-dead-letter-exchange": "dlx",
-            # "x-dead-letter-routing-key": "failed_tasks",
+            "x-message-ttl": 3600,
+            "x-dead-letter-exchange": "dlx",
+            "x-dead-letter-routing-key": f"{os.getenv('RMQ_VHOST')}-dlx",
         },
     )
 

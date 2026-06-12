@@ -3,23 +3,20 @@ import os
 from dotenv import load_dotenv
 
 
-
 load_dotenv()
-
 
 
 def get_params(producer: bool = False):
     credentials = pika.PlainCredentials(
         os.getenv("RMQ_USER_CONSUMER"),
         os.getenv("RMQ_PASS_CONSUMER"),
-    )    
+    )
     if producer:
         # Connection parameters (same as producer)
         credentials = pika.PlainCredentials(
             os.getenv("RMQ_USER_PRODUCER"),
             os.getenv("RMQ_PASS_PRODUCER"),
         )
-    
 
     parameters = pika.ConnectionParameters(
         host=os.getenv("RMQ_HOST"),
