@@ -24,10 +24,11 @@ services:
     networks:
       - rabbitmq_network
     hostname: rabbitmq-node
-    ports:
-      - "5672:5672"      # AMQP protocol port
-      - "15672:15672"    # Management UI port
-      - "15692:15692"    # prometheus port
+    # avoid exposing rabbitmq to the host
+    # ports:
+    #   - "5672:5672"      # AMQP protocol port
+    #   - "15672:15672"    # Management UI port
+      # - "15692:15692"    # prometheus port
     environment:
       # Custom admin credentials
       RABBITMQ_DEFAULT_USER: admin
