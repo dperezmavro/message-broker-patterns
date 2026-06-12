@@ -22,7 +22,7 @@ services:
       - "15672:15672"
   
   rabbitmq-1:
-    image: rabbitmq:3-management
+    image: rabbitmq:4-management
     container_name: rabbitmq-1
     networks:
       - rabbitmq_network
@@ -51,7 +51,7 @@ services:
     restart: unless-stopped
 
   rabbitmq-2:
-    image: rabbitmq:3-management
+    image: rabbitmq:4-management
     container_name: rabbitmq-2
     networks:
       - rabbitmq_network
@@ -80,7 +80,7 @@ services:
     restart: unless-stopped
 
   rabbitmq-3:
-    image: rabbitmq:3-management
+    image: rabbitmq:4-management
     container_name: rabbitmq-3
     networks:
       - rabbitmq_network
@@ -116,7 +116,7 @@ services:
   #       condition: service_healthy
   #     rabbitmq-3:
   #       condition: service_healthy
-  #   image: rabbitmq:3-management
+  #   image: rabbitmq:4-management
   #   command: bash /opt/make-quorum.sh
   #   environment:
   #     RABBITMQ_NODENAME: rabbitmq-quorum-maker
