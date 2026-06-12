@@ -2,6 +2,22 @@
 version: '3.8'
 
 services:
+  nginx:
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    image: nginx:latest
+    restart: on-failure
+    container_name: nginx
+    networks:
+      - rabbitmq_network
+    hostname: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   rabbitmq:
     image: rabbitmq:3-management
     container_name: rabbitmq
@@ -11,11 +27,13 @@ services:
     ports:
       - "5672:5672"      # AMQP protocol port
       - "15672:15672"    # Management UI port
+      - "15692:15692"    # prometheus port
     environment:
       # Custom admin credentials
       RABBITMQ_DEFAULT_USER: admin
       RABBITMQ_DEFAULT_PASS: secretpassword123
       RABBITMQ_DEFAULT_VHOST: default
+      RABBITMQ_NODENAME: rabbitmq-node-1
       # Erlang cookie for clustering (must match across nodes)
       RABBITMQ_ERLANG_COOKIE: "unique-secret-cookie"
     volumes:
