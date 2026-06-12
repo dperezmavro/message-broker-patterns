@@ -42,6 +42,12 @@ def main():
     channel.queue_declare(
         queue=os.getenv("RMQ_VHOST"),
         durable=True,
+        arguments={
+            "x-queue-type": "quorum",
+            'x-message-ttl': 3600,
+            # "x-dead-letter-exchange": "dlx",
+            # "x-dead-letter-routing-key": "failed_tasks",
+        },
     )
 
     # Send sample messages
