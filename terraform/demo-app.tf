@@ -61,5 +61,5 @@ resource "rabbitmq_binding" "binding" {
   vhost            = rabbitmq_vhost.application.name
   destination      = rabbitmq_queue.queue.name
   destination_type = "queue"
-  routing_key      = "#"
+  routing_key      = "demo-app-producer-tasks"
 }
