@@ -10,8 +10,8 @@ services:
         condition: service_healthy
       rabbitmq-3:
         condition: service_healthy
-      quorum_maker:
-        condition: service_completed_successfully
+      # quorum_maker:
+      #   condition: service_completed_successfully
     image: nginx:latest
     restart: unless-stopped
     container_name: nginx
@@ -119,26 +119,26 @@ services:
       retries: 5
     restart: unless-stopped
 
-  quorum_maker:
-    depends_on:
-      rabbitmq-1:
-        condition: service_healthy
-      rabbitmq-2:
-        condition: service_healthy
-      rabbitmq-3:
-        condition: service_healthy
-    image: rabbitmq:3-management
-    command: bash /opt/make-quorum.sh
-    environment:
-      RABBITMQ_NODENAME: rabbitmq-quorum-maker
-      RABBITMQ_ERLANG_COOKIE: "unique-secret-cookie"
-    restart: on-failure
-    container_name: quorum-maker
-    networks:
-      - rabbitmq_network
-    hostname: quorum-maker
-    volumes:
-      - ./make-quorum.sh:/opt/make-quorum.sh:ro
+  # quorum_maker:
+  #   depends_on:
+  #     rabbitmq-1:
+  #       condition: service_healthy
+  #     rabbitmq-2:
+  #       condition: service_healthy
+  #     rabbitmq-3:
+  #       condition: service_healthy
+  #   image: rabbitmq:3-management
+  #   command: bash /opt/make-quorum.sh
+  #   environment:
+  #     RABBITMQ_NODENAME: rabbitmq-quorum-maker
+  #     RABBITMQ_ERLANG_COOKIE: "unique-secret-cookie"
+  #   restart: on-failure
+  #   container_name: quorum-maker
+  #   networks:
+  #     - rabbitmq_network
+  #   hostname: quorum-maker
+  #   volumes:
+  #     - ./make-quorum.sh:/opt/make-quorum.sh:ro
 
 
 networks:
