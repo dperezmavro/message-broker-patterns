@@ -42,7 +42,7 @@ resource "rabbitmq_exchange" "exchange" {
   settings {
     type        = "fanout"
     durable     = false
-    auto_delete = true
+    auto_delete = false
   }
 }
 
