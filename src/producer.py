@@ -5,6 +5,7 @@ import time
 from dotenv import load_dotenv
 import os
 import random
+from parameters import parameters as params
 
 
 def publish_message(channel: pika.adapters.blocking_connection.BlockingChannel, id: int, message_data):
@@ -28,25 +29,9 @@ def publish_message(channel: pika.adapters.blocking_connection.BlockingChannel, 
 def main():
     load_dotenv()
 
-    # Connection parameters matching our Docker setup
-    credentials = pika.PlainCredentials(
-        os.getenv("RMQ_USER_PRODUCER"),
-        os.getenv("RMQ_PASS_PRODUCER"),
-    )
-    parameters = pika.ConnectionParameters(
-        host=os.getenv("RMQ_HOST"),
-        port=int(os.getenv("RMQ_PORT")),
-        virtual_host=os.getenv("RMQ_VHOST"),
-        credentials=credentials,
-        # Heartbeat keeps connection alive
-        heartbeat=60,
-        # Retry connection on failure
-        connection_attempts=3,
-        retry_delay=5,
-    )
-
+    
     # Establish connection to RabbitMQ
-    connection = pika.BlockingConnection(parameters)
+    connection = pika.BlockingConnection(params)
     channel = connection.channel()
 
     # Declare a durable queue (survives broker restart)
