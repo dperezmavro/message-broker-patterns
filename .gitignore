@@ -1,3 +1,6 @@
 .env/
 rabbitmq_data/
+rabbitmq_data_1/
+rabbitmq_data_2/
+rabbitmq_data_3/
 providers/
