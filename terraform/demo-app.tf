@@ -1,11 +1,17 @@
 # Create a virtual host
 resource "rabbitmq_vhost" "application" {
-  name = "demo-app"
+  name = var.name
 }
 
 resource "rabbitmq_user" "producer" {
   name     = "producer"
   password = "producer"
+  # tags     = ["administrator", "management"]
+}
+
+resource "rabbitmq_user" "consumer" {
+  name     = "consumer"
+  password = "consumer"
   # tags     = ["administrator", "management"]
 }
 
@@ -20,13 +26,42 @@ resource "rabbitmq_permissions" "producer" {
   }
 }
 
+resource "rabbitmq_permissions" "consumer" {
+  user  = rabbitmq_user.consumer.name
+  vhost = rabbitmq_vhost.application.name
+
+  permissions {
+    configure = ".*"
+    write     = ".*"
+    read      = ".*"
+  }
+}
+
 resource "rabbitmq_exchange" "exchange" {
-  name  = "demo-app"
-  vhost = rabbitmq_permissions.producer.vhost
+  name  = var.name
+  vhost = rabbitmq_vhost.application.name
 
   settings {
     type        = "fanout"
     durable     = false
     auto_delete = true
   }
+}
+
+resource "rabbitmq_queue" "queue" {
+  name  = var.name
+  vhost = rabbitmq_vhost.application.name
+
+  settings {
+    durable     = true
+    auto_delete = false
+  }
+}
+
+resource "rabbitmq_binding" "binding" {
+  source           = rabbitmq_exchange.exchange.name
+  vhost            = rabbitmq_vhost.application.name
+  destination      = rabbitmq_queue.queue.name
+  destination_type = "queue"
+  routing_key      = "#"
 }
