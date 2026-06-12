@@ -36,7 +36,7 @@ def process_message(ch, method, properties, body):
     """
     try:
         message = json.loads(body)
-        print(f"Processing task {message['task_id']}")
+        print(f"[*] Processing task {message['task_id']}")
 
         # Simulate work (replace with actual processing)
         time.sleep(1)
@@ -44,7 +44,7 @@ def process_message(ch, method, properties, body):
         # Acknowledge successful processing
         # Message is removed from queue only after ack
         ch.basic_ack(delivery_tag=method.delivery_tag)
-        print(f"Completed task {message['task_id']}")
+        print(f"--Completed task {message['task_id']}")
 
     except Exception as e:
         print(f"Error processing message: {e}")

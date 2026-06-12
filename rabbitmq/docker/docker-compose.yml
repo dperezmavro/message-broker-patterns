@@ -20,12 +20,14 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+  
   rabbitmq-1:
     image: rabbitmq:3-management
     container_name: rabbitmq-1
     networks:
       - rabbitmq_network
     hostname: rabbitmq-node-1
+    mem_limit: 256m
     # avoid exposing rabbitmq to the host
     # ports:
     #   - "5672:5672"      # AMQP protocol port
@@ -37,15 +39,11 @@ services:
       RABBITMQ_DEFAULT_PASS: secretpassword123
       RABBITMQ_DEFAULT_VHOST: default
       RABBITMQ_NODENAME: rabbitmq-node-1
-      # Erlang cookie for clustering (must match across nodes)
       RABBITMQ_ERLANG_COOKIE: "unique-secret-cookie"
     volumes:
-      # Persist data across container restarts
       - ./rabbitmq_data_1:/var/lib/rabbitmq
-      # Custom configuration file (optional)
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     healthcheck:
-      # Check if RabbitMQ is responding
       test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 30s
       timeout: 10s
@@ -58,6 +56,7 @@ services:
     networks:
       - rabbitmq_network
     hostname: rabbitmq-node-2
+    mem_limit: 256m
     # avoid exposing rabbitmq to the host
     # ports:
     #   - "5672:5672"      # AMQP protocol port
@@ -69,15 +68,11 @@ services:
       RABBITMQ_DEFAULT_PASS: secretpassword123
       RABBITMQ_DEFAULT_VHOST: default
       RABBITMQ_NODENAME: rabbitmq-node-2
-      # Erlang cookie for clustering (must match across nodes)
       RABBITMQ_ERLANG_COOKIE: "unique-secret-cookie"
     volumes:
-      # Persist data across container restarts
       - ./rabbitmq_data_2:/var/lib/rabbitmq
-      # Custom configuration file (optional)
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     healthcheck:
-      # Check if RabbitMQ is responding
       test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 30s
       timeout: 10s
@@ -90,6 +85,7 @@ services:
     networks:
       - rabbitmq_network
     hostname: rabbitmq-node-3
+    mem_limit: 256m
     # avoid exposing rabbitmq to the host
     # ports:
     #   - "5672:5672"      # AMQP protocol port
@@ -101,15 +97,11 @@ services:
       RABBITMQ_DEFAULT_PASS: secretpassword123
       RABBITMQ_DEFAULT_VHOST: default
       RABBITMQ_NODENAME: rabbitmq-node-3
-      # Erlang cookie for clustering (must match across nodes)
       RABBITMQ_ERLANG_COOKIE: "unique-secret-cookie"
     volumes:
-      # Persist data across container restarts
       - ./rabbitmq_data_3:/var/lib/rabbitmq
-      # Custom configuration file (optional)
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     healthcheck:
-      # Check if RabbitMQ is responding
       test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 30s
       timeout: 10s
