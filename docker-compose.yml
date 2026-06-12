@@ -2,28 +2,27 @@
 version: '3.8'
 
 services:
-  nginx:
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-    image: nginx:latest
-    restart: on-failure
-    container_name: nginx
-    networks:
-      - rabbitmq_network
-    hostname: nginx
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    ports:
-      - "5673:5672"
-      - "15673:15672"
-
-  rabbitmq:
+  # nginx:
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   image: nginx:latest
+  #   restart: on-failure
+  #   container_name: nginx
+  #   networks:
+  #     - rabbitmq_network
+  #   hostname: nginx
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #   ports:
+  #     - "5673:5672"
+  #     - "15673:15672"
+  rabbitmq-1:
     image: rabbitmq:3-management
-    container_name: rabbitmq
+    container_name: rabbitmq-1
     networks:
       - rabbitmq_network
-    hostname: rabbitmq-node
+    hostname: rabbitmq-node-1
     # avoid exposing rabbitmq to the host
     # ports:
     #   - "5672:5672"      # AMQP protocol port
@@ -39,7 +38,7 @@ services:
       RABBITMQ_ERLANG_COOKIE: "unique-secret-cookie"
     volumes:
       # Persist data across container restarts
-      - ./rabbitmq_data:/var/lib/rabbitmq
+      - ./rabbitmq_data_1:/var/lib/rabbitmq
       # Custom configuration file (optional)
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
     healthcheck:
@@ -50,6 +49,91 @@ services:
       retries: 5
     restart: unless-stopped
 
+  rabbitmq-2:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-2
+    networks:
+      - rabbitmq_network
+    hostname: rabbitmq-node-2
+    # avoid exposing rabbitmq to the host
+    # ports:
+    #   - "5672:5672"      # AMQP protocol port
+    #   - "15672:15672"    # Management UI port
+      # - "15692:15692"    # prometheus port
+    environment:
+      # Custom admin credentials
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: secretpassword123
+      RABBITMQ_DEFAULT_VHOST: default
+      RABBITMQ_NODENAME: rabbitmq-node-2
+      # Erlang cookie for clustering (must match across nodes)
+      RABBITMQ_ERLANG_COOKIE: "unique-secret-cookie"
+    volumes:
+      # Persist data across container restarts
+      - ./rabbitmq_data_2:/var/lib/rabbitmq
+      # Custom configuration file (optional)
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    healthcheck:
+      # Check if RabbitMQ is responding
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  rabbitmq-3:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-3
+    networks:
+      - rabbitmq_network
+    hostname: rabbitmq-node-3
+    # avoid exposing rabbitmq to the host
+    # ports:
+    #   - "5672:5672"      # AMQP protocol port
+    #   - "15672:15672"    # Management UI port
+      # - "15692:15692"    # prometheus port
+    environment:
+      # Custom admin credentials
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: secretpassword123
+      RABBITMQ_DEFAULT_VHOST: default
+      RABBITMQ_NODENAME: rabbitmq-node-3
+      # Erlang cookie for clustering (must match across nodes)
+      RABBITMQ_ERLANG_COOKIE: "unique-secret-cookie"
+    volumes:
+      # Persist data across container restarts
+      - ./rabbitmq_data_3:/var/lib/rabbitmq
+      # Custom configuration file (optional)
+      - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+    healthcheck:
+      # Check if RabbitMQ is responding
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  quorum_maker:
+    depends_on:
+      rabbitmq-1:
+        condition: service_healthy
+      rabbitmq-2:
+        condition: service_healthy
+      rabbitmq-3:
+        condition: service_healthy
+    image: rabbitmq:3-management
+    command: bash /opt/make-quorum.sh
+    environment:
+      RABBITMQ_NODENAME: rabbitmq-quorum-maker
+      RABBITMQ_ERLANG_COOKIE: "unique-secret-cookie"
+    restart: on-failure
+    container_name: quorum-maker
+    networks:
+      - rabbitmq_network
+    hostname: quorum-maker
+    volumes:
+      - ./make-quorum.sh:/opt/make-quorum.sh:ro
+
 
 networks:
   rabbitmq_network:
@@ -57,5 +141,9 @@ networks:
 
 
 volumes:
-  rabbitmq_data:
+  rabbitmq_data_1:
+    driver: local
+  rabbitmq_data_2:
+    driver: local
+  rabbitmq_data_3:
     driver: local
