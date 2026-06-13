@@ -13,4 +13,3 @@ provider "rabbitmq" {
   username = "admin"
   password = "secretpassword123"
 }
-

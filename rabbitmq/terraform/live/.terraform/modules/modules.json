@@ -1,0 +1,1 @@
+{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"consumer","Source":"../modules/vhost_user","Dir":"../modules/vhost_user"},{"Key":"demo_app_queue","Source":"../modules/queue_with_dlq","Dir":"../modules/queue_with_dlq"},{"Key":"producer","Source":"../modules/vhost_user","Dir":"../modules/vhost_user"}]}
