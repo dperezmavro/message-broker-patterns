@@ -29,8 +29,8 @@ services:
     hostname: rabbitmq-node-1
     mem_limit: 256m
     # avoid exposing rabbitmq to the host
-    ports:
-      - "15692:15692"    # prometheus port
+    # ports:
+    #   - "15692:15692"    # prometheus port
     #   - "5672:5672"      # AMQP protocol port
     #   - "15672:15672"    # Management UI port
     environment:
@@ -59,8 +59,8 @@ services:
     hostname: rabbitmq-node-2
     mem_limit: 256m
     # avoid exposing rabbitmq to the host
-    ports:
-      - "15693:15692"    # prometheus port
+    # ports:
+    #   - "15693:15692"    # prometheus port
     #   - "5672:5672"      # AMQP protocol port
     #   - "15672:15672"    # Management UI port
     environment:
@@ -89,8 +89,8 @@ services:
     hostname: rabbitmq-node-3
     mem_limit: 256m
     # avoid exposing rabbitmq to the host
-    ports:
-      - "15694:15692"    # prometheus port
+    # ports:
+    #   - "15694:15692"    # prometheus port
     #   - "5672:5672"      # AMQP protocol port
     #   - "15672:15672"    # Management UI port
     environment:
