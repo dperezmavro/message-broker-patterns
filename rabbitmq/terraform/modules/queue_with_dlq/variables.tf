@@ -1,5 +1,5 @@
 variable "name" {
-  description = "Base name for the main queue. The DLQ is named {var.name}-dlq\"."
+  description = "Fully-qualified main queue name. The DLQ defaults to \"{name}.dlq\"."
   type        = string
 }
 
@@ -8,19 +8,31 @@ variable "vhost" {
   type        = string
 }
 
-variable "source_exchange" {
+variable "main_source_exchange" {
   description = "Exchange that feeds the main queue."
   type        = string
 }
 
-variable "routing_key" {
-  description = "Routing key used to bind the main queue to source_exchange. Ignored by fanout exchanges but still required for the binding."
+variable "main_routing_key" {
+  description = "Routing key used to bind the main queue to main_source_exchange. Ignored by fanout exchanges but still required for the binding."
   type        = string
 }
 
-variable "dlx_exchange" {
-  description = "Name of the shared DLX exchange. Set as x-dead-letter-exchange on the main queue and used as the source for the DLQ binding."
+variable "dlq_source_exchange" {
+  description = "Exchange that feeds the DLQ. Set as x-dead-letter-exchange on the main queue and used as the source for the DLQ binding."
   type        = string
+}
+
+variable "dlq_routing_key" {
+  description = "Routing key used to bind the DLQ to dlq_source_exchange and as x-dead-letter-routing-key on the main queue. Defaults to \"{name}.dlq\"."
+  type        = string
+  default     = null
+}
+
+variable "dlq_name" {
+  description = "DLQ queue name. Defaults to \"{name}.dlq\"."
+  type        = string
+  default     = null
 }
 
 variable "delivery_limit" {

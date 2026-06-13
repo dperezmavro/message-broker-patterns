@@ -7,8 +7,8 @@ terraform {
 }
 
 locals {
-  dlq_name        = "${var.name}-dlq"
-  dlq_routing_key = "${var.name}-dlx"
+  dlq_name        = coalesce(var.dlq_name, "${var.name}.dlq")
+  dlq_routing_key = coalesce(var.dlq_routing_key, "${var.name}.dlq")
 
   dlq_arguments = merge(
     { "x-queue-type" = "quorum" },
@@ -27,7 +27,7 @@ resource "rabbitmq_queue" "main" {
     arguments_json = jsonencode({
       "x-queue-type"              = var.queue_type
       "x-delivery-limit"          = var.delivery_limit
-      "x-dead-letter-exchange"    = var.dlx_exchange
+      "x-dead-letter-exchange"    = var.dlq_source_exchange
       "x-dead-letter-routing-key" = local.dlq_routing_key
     })
   }
@@ -45,15 +45,15 @@ resource "rabbitmq_queue" "dlq" {
 }
 
 resource "rabbitmq_binding" "main" {
-  source           = var.source_exchange
+  source           = var.main_source_exchange
   vhost            = var.vhost
   destination      = rabbitmq_queue.main.name
   destination_type = "queue"
-  routing_key      = var.routing_key
+  routing_key      = var.main_routing_key
 }
 
 resource "rabbitmq_binding" "dlq" {
-  source           = var.dlx_exchange
+  source           = var.dlq_source_exchange
   vhost            = var.vhost
   destination      = rabbitmq_queue.dlq.name
   destination_type = "queue"

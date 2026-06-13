@@ -1,10 +1,12 @@
 # producer.py - Sends messages to RabbitMQ
-import pika
 import json
-import time
-from dotenv import load_dotenv
 import os
 import random
+import time
+
+import pika
+from dotenv import load_dotenv
+
 from parameters import get_params
 
 
@@ -13,16 +15,12 @@ def publish_message(
     id: str,
     message_data: any,
 ):
-    """
-    Publish a message to the task queue.
-    Messages are persisted to disk for durability.
-    """
     channel.basic_publish(
         exchange=os.getenv("RMQ_EXCHANGE"),
-        routing_key=os.getenv("RMQ_ROUTING_KEY"),  # Queue name
+        routing_key=os.getenv("RMQ_ROUTING_KEY"),
         body=json.dumps(message_data),
         properties=pika.BasicProperties(
-            delivery_mode=2,  # Make message persistent
+            delivery_mode=pika.DeliveryMode.Persistent,
             content_type="application/json",
             message_id=id,
         ),
@@ -31,13 +29,11 @@ def publish_message(
 
 
 def main():
-    load_dotenv()
+    load_dotenv(".env.producer")
 
-    # Establish connection to RabbitMQ
-    connection = pika.BlockingConnection(get_params(True))
+    connection = pika.BlockingConnection(get_params())
     channel = connection.channel()
 
-    # Send sample messages
     while True:
         id = (random.randint(1, 100),)
         publish_message(
@@ -49,10 +45,8 @@ def main():
                 "timestamp": time.time(),
             },
         )
-        # print("[*] Sleeping...")
         time.sleep(0.5)
 
-    # Clean up connection
     connection.close()
 
 
