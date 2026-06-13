@@ -29,10 +29,10 @@ services:
     hostname: rabbitmq-node-1
     mem_limit: 256m
     # avoid exposing rabbitmq to the host
-    # ports:
+    ports:
+      - "15692:15692"    # prometheus port
     #   - "5672:5672"      # AMQP protocol port
     #   - "15672:15672"    # Management UI port
-      # - "15692:15692"    # prometheus port
     environment:
       # Custom admin credentials
       RABBITMQ_DEFAULT_USER: admin
@@ -43,6 +43,7 @@ services:
     volumes:
       - ./rabbitmq_data_1:/var/lib/rabbitmq
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 30s
@@ -58,10 +59,10 @@ services:
     hostname: rabbitmq-node-2
     mem_limit: 256m
     # avoid exposing rabbitmq to the host
-    # ports:
+    ports:
+      - "15693:15692"    # prometheus port
     #   - "5672:5672"      # AMQP protocol port
     #   - "15672:15672"    # Management UI port
-      # - "15692:15692"    # prometheus port
     environment:
       # Custom admin credentials
       RABBITMQ_DEFAULT_USER: admin
@@ -72,6 +73,7 @@ services:
     volumes:
       - ./rabbitmq_data_2:/var/lib/rabbitmq
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 30s
@@ -87,10 +89,10 @@ services:
     hostname: rabbitmq-node-3
     mem_limit: 256m
     # avoid exposing rabbitmq to the host
-    # ports:
+    ports:
+      - "15694:15692"    # prometheus port
     #   - "5672:5672"      # AMQP protocol port
     #   - "15672:15672"    # Management UI port
-      # - "15692:15692"    # prometheus port
     environment:
       # Custom admin credentials
       RABBITMQ_DEFAULT_USER: admin
@@ -101,12 +103,45 @@ services:
     volumes:
       - ./rabbitmq_data_3:/var/lib/rabbitmq
       - ./rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 30s
       timeout: 10s
       retries: 5
     restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus
+    depends_on:
+      rabbitmq-1:
+        condition: service_healthy
+      rabbitmq-2:
+        condition: service_healthy
+      rabbitmq-3:
+        condition: service_healthy
+    container_name: prometheus
+    networks:
+      - rabbitmq_network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prom_data:/prometheus
+  # grafana:
+  #   image: grafana/grafana
+  #   container_name: grafana
+  #   ports:
+  #     - 3000:3000
+  #   restart: unless-stopped
+  #   environment:
+  #     - GF_SECURITY_ADMIN_USER=admin
+  #     - GF_SECURITY_ADMIN_PASSWORD=grafana
+  #   volumes:
+  #     - ./grafana_data:/etc/grafana/provisioning/datasources
 
   # quorum_maker:
   #   depends_on:
@@ -141,4 +176,8 @@ volumes:
   rabbitmq_data_2:
     driver: local
   rabbitmq_data_3:
+    driver: local
+  prom_data:
+    driver: local
+  grafana_data:
     driver: local
