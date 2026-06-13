@@ -113,16 +113,13 @@ services:
 
   prometheus:
     image: prom/prometheus
-    depends_on:
-      rabbitmq-1:
-        condition: service_healthy
-      rabbitmq-2:
-        condition: service_healthy
-      rabbitmq-3:
-        condition: service_healthy
+    profiles:
+      - monitoring
     container_name: prometheus
     networks:
       - rabbitmq_network
+    healthcheck:
+      test: ["CMD", "wget", "-O-", "http://localhost:9090/-/ready"]
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
@@ -131,17 +128,28 @@ services:
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
       - prom_data:/prometheus
-  # grafana:
-  #   image: grafana/grafana
-  #   container_name: grafana
-  #   ports:
-  #     - 3000:3000
-  #   restart: unless-stopped
-  #   environment:
-  #     - GF_SECURITY_ADMIN_USER=admin
-  #     - GF_SECURITY_ADMIN_PASSWORD=grafana
-  #   volumes:
-  #     - ./grafana_data:/etc/grafana/provisioning/datasources
+  
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    profiles:
+      - monitoring
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    networks:
+      - rabbitmq_network
+    ports:
+      - 3000:3000
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=grafana
+    user: "472:0"
+    volumes:
+      - ./grafana_data/provisioning:/etc/grafana/provisioning
+      - ./grafana_data/dashboards:/var/lib/grafana/dashboards
+      - ./grafana_data/data:/var/lib/grafana
 
   # quorum_maker:
   #   depends_on:
@@ -178,6 +186,4 @@ volumes:
   rabbitmq_data_3:
     driver: local
   prom_data:
-    driver: local
-  grafana_data:
     driver: local

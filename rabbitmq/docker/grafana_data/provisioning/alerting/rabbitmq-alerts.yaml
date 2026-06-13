@@ -1,0 +1,57 @@
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: rabbitmq-queue-health
+    folder: RabbitMQ
+    interval: 1m
+    rules:
+      - uid: rabbitmq-queue-backlog
+        title: Queue has more than 100 unprocessed messages
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              editorMode: code
+              expr: max by (queue, vhost) (rabbitmq_queue_messages_ready)
+              instant: true
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [100]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    params: []
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: C
+              type: threshold
+        noDataState: OK
+        execErrState: Error
+        for: 1m
+        annotations:
+          summary: "Queue {{ $labels.queue }} (vhost {{ $labels.vhost }}) has {{ $values.A.Value }} ready messages — backlog growing."
+          description: "rabbitmq_queue_messages_ready exceeded 100 for at least 1m. Producers are outpacing consumers, or consumers are stuck."
+        labels:
+          severity: warning
+          service: rabbitmq
