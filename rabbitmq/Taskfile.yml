@@ -17,9 +17,9 @@ tasks:
   apply:
     cmds:
       - terraform apply
-    dir: terraform
+    dir: terraform/live
   
   fmt:
     cmds:
       - terraform fmt
-    dir: terraform
+    dir: terraform/live

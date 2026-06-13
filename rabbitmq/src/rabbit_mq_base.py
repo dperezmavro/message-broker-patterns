@@ -25,14 +25,14 @@ class RabbitMQBase:
             retry_delay=5,
         )
 
-
-class Consumer(RabbitMQBase):
-    def __init__(self, dotenv_file: str | None = ".env.consumer"):
-        super().__init__(dotenv_file)
         self.queue_name = os.getenv("RMQ_QUEUE")
         self.connection = pika.BlockingConnection(self.connection_params)
         self.channel = self.connection.channel()
 
+
+class Consumer(RabbitMQBase):
+    def __init__(self, dotenv_file: str | None = ".env.consumer"):
+        super().__init__(dotenv_file)
         self.channel.basic_qos(prefetch_count=1)
 
     def process_message(self, ch, method, properties, body):
@@ -64,9 +64,6 @@ class Consumer(RabbitMQBase):
 class Producer(RabbitMQBase):
     def __init__(self, dotenv_file: str | None = ".env.producer"):
         super().__init__(dotenv_file)
-
-        self.connection = pika.BlockingConnection(self.connection_params)
-        self.channel = self.connection.channel()
 
     def publish(self):
         id = random.randint(1, 100)
